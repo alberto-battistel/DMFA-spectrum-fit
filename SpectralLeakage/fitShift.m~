@@ -1,0 +1,46 @@
+%% Produce a windowed periodic function 
+
+npoints = 100;
+
+% fstep = 1/(Nsample*Tinterval);
+% fstep = 1/(10e6*Tinterval);
+
+l = f0/fstep + (-npoints/2:npoints/2-1);
+fvector = (l-1)*fstep;
+
+y2fit = double(abs(Afft(l)));
+
+% The right frequency should fall at the npoints/2+1 position
+%f0 = npoints/2+1;
+
+% windowed function
+np = length(y2fit);
+w = blackmanharris(np, 'periodic');
+yf = @(V) (V(1)+1j*V(2))*fftshift(fft(w.*exp(1j*2*pi*(V(3)-np/2-1)*(0:np-1)/np).')/np);
+
+% chi2 based on Abs
+chi2 = @(V) sum((y2fit - abs(yf(V))).^2);
+
+% fitting options
+options = optimoptions(@fminunc,'display', 'iter','TolFun', 1e-10, 'TolX', 1e-10, 'Algorithm', 'quasi-newton');
+
+% first guess from position and intensity of FFT
+Max = max(y2fit);
+V0(1) = real()
+[~, V0(3)] = max(y2fit);
+%V0(2) = 46;   % shift
+
+% fitting
+Vf = fminunc(@(V) chi2(V), V0, options);
+
+% resulted fitting function
+yfit = abs(yf(Vf));
+
+% plot
+figure
+hold on
+semilogy(y2fit, '.')
+semilogy(abs(yf(V0)), 'g')
+semilogy(yfit, 'r')
+hold off
+set(gca, 'yscale', 'log')
