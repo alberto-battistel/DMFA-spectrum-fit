@@ -2,9 +2,11 @@ function A = myChebyshevPoly(n,x)
 %--------------------------------------------------------------------------
 % A = myChebyshevPoly(n,x)
 % Chebyshev polynomials of the 1rst kind, Tn(x)
+% x is a row vector
 %--------------------------------------------------------------------------
 
-x = x(:);
+
+%x = x(:);
 
 m = length(x);
 A = zeros(n+1,m);
